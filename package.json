@@ -43,8 +43,13 @@
   "devDependencies": {
     "node-fetch": "^3.3.1",
     "npm-run-all": "^4.1.5",
+    "sequelize": "^6.29.3",
+    "sqlite3": "^5.1.6",
     "typescript": "^5.0.2",
     "typescript-transpile-only": "^0.0.4",
     "vitest": "^0.29.7"
+  },
+  "peerDependencies": {
+    "sequelize": "^6"
   }
 }
