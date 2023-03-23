@@ -6,7 +6,9 @@ import type { Sequelize } from "sequelize";
  */
 export default function sequelizeStrictAttributes (sequelize: Sequelize) {
   sequelize.addHook('afterFind', (result) => {
-    if (result) {  // Make sure it's not an empty result from a findOne
+    if (result instanceof Array) {
+      result.forEach(guardAttributes);
+    } else if (result) { // Make sure it's not an empty result from a findOne
       guardAttributes(result);
     }
   });

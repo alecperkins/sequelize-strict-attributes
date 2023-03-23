@@ -26,6 +26,25 @@ describe("sequelizeStrictAttributes", () => {
     expect(() => result.bravo = 1).not.toThrow();
     expect(() => result.set("bravo", 1)).not.toThrow();
   });
+
+  test("guards against use of omitted attributes after findAll", async () => {
+    const { sequelize, Foo } = await sharedSetup();
+    sequelizeStrictAttributes(sequelize);
+    expect((await Foo.count())).toBe(1);
+
+    const [result] = await Foo.findAll({
+      attributes: ["alpha"],
+    });
+
+    expect(() => result!.bravo).toThrow("Cannot access attribute bravo on Foo omitted from attributes");
+    expect(() => result!.get("bravo")).toThrow("Cannot access attribute bravo on Foo omitted from attributes");
+    expect(() => result!.bravo += 1).toThrow("Cannot access attribute bravo on Foo omitted from attributes");
+
+    expect(result!.alpha).toEqual("abc");
+    expect(result!.get("alpha")).toEqual("abc");
+    expect(() => result!.bravo = 1).not.toThrow();
+    expect(() => result!.set("bravo", 1)).not.toThrow();
+  });
   });
 });
 
