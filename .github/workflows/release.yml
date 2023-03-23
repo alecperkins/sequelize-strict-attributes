@@ -1,0 +1,38 @@
+name: Prepare Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-please:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        with:
+          release-type: node
+          package-name: release-please-action
+
+  # https://github.com/google-github-actions/release-please-action/issues/176#issuecomment-1356244823
+  build:
+    permissions:
+      contents: write
+    name: Upload tarball
+    runs-on: ubuntu-latest
+    needs: release-please
+    if: ${{ needs.release-please.outputs.releases_created }}
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - name: Compile
+        run: npm run build-dist
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: "sequelize-strict-attributes-*.tgz"
+          tag: ${{ needs.release-please.outputs.tag_name }}

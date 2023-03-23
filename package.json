@@ -1,0 +1,50 @@
+{
+  "name": "sequelize-strict-attributes",
+  "version": "0.0.1",
+  "description": "",
+  "author": "Alec Perkins <mail@alecperkins.me>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alecperkins/sequelize-strict-attributes/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alecperkins/sequelize-strict-attributes.git"
+  },
+  "homepage": "https://alecperkins.net/sequelize-strict-attributes",
+  "keywords": [
+  ],
+  "type": "commonjs",
+  "main": "./index.cjs",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs",
+      "require": "./index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "private": true,
+  "scripts": {
+    "build": "run-p build:*",
+    "build:types": "tsc-transpile-only --declaration --emitDeclarationOnly --outDir ./build/ ./src/index.ts",
+    "build:mjs": "tsc-transpile-only --module es2020 --target es2020 --outDir ./build/ ./src/index.ts && mv ./build/index.js ./build/index.mjs",
+    "build:cjs": "tsc-transpile-only --module commonjs --target es2020 --outDir ./build/ ./src/index.ts && mv ./build/index.js ./build/index.cjs",
+    "build-dist": "node ./scripts/build-dist.js",
+    "prepack": "npm run test && npm run build && npm run build-dist",
+    "inspect-package": "npm run prepack && npm pack --dry-run ./dist/sequelize-strict-attributes",
+    "publish-to-npm": "npm run inspect-package && node ./scripts/confirm-publish.js && npm publish ./dist/sequelize-strict-attributes && npm run postpublish",
+    "postpublish": "cd ./tests/integration/ && npm run test-published",
+    "test": "run-p test:*",
+    "test:types": "tsc --noEmit ./src/index.ts",
+    "test:unit": "vitest --run ./tests/*.*"
+  },
+  "devDependencies": {
+    "node-fetch": "^3.3.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.0.2",
+    "typescript-transpile-only": "^0.0.4",
+    "vitest": "^0.29.7"
+  }
+}
