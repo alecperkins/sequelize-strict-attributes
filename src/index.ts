@@ -2,6 +2,14 @@ import { InstanceError, Model } from "sequelize";
 import type { Sequelize } from "sequelize";
 
 /**
+ * Wrap all instances resulting from a findOne or findAll with
+ * guards that throw when trying to access attributes omitted from
+ * include or explicitly excluded from the select.
+ * 
+ * @example
+ *    const sequelize = new Sequelize(…conn…);
+ *    sequelizeStrictAttributes(sequelize);
+ * 
  * @param sequelize - an active Sequelize instance
  */
 export default function sequelizeStrictAttributes (sequelize: Sequelize) {
