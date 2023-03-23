@@ -96,6 +96,24 @@ describe("sequelizeStrictAttributes", () => {
 
     expect(result).toEqual(null);
   });
+
+  test("has no effect after a raw findOne", async () => {
+    const { sequelize, Foo } = await sharedSetup();
+    sequelizeStrictAttributes(sequelize);
+    expect((await Foo.count())).toBe(1);
+
+    const result = await Foo.findOne({
+      where: { alpha: "abc" },
+      attributes: ["alpha"],
+      raw: true,
+      rejectOnEmpty: true,
+    });
+
+    expect(result.alpha).toEqual('abc');
+    expect(result.bravo).toEqual(undefined);
+    expect(() => result.bravo = 1).not.toThrow();
+  });
+
 });
 
 

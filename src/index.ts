@@ -15,6 +15,11 @@ export default function sequelizeStrictAttributes (sequelize: Sequelize) {
 }
 
 function guardAttributes (instance) {
+  if (!instance._options || !instance._options.attributes) {
+    // Raw results aren't full instances and can't be reliably restricted.
+    return;
+  }
+
   const loaded_attrs = new Set([
     ...instance._options.attributes,
   ]);
