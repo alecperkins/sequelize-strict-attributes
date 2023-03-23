@@ -49,7 +49,12 @@ writePackageFile('README.md', readProjectFile('README.md'));
 writePackageFile('LICENSE', readProjectFile('LICENSE'));
 
 let cjs_content = readBuildFile('index.cjs').toString();
-
+cjs_content = cjs_content.replace(`Object.defineProperty(exports, "__esModule", { value: true });`,'');
+cjs_content = cjs_content.replace(`exports.default = sequelizeStrictAttributes;`,`
+module.exports = sequelizeStrictAttributes;
+module.exports.default = sequelizeStrictAttributes;
+Object.defineProperty(module.exports, "__esModule", { value: true });
+`);
 
 
 writePackageFile('index.mjs', readBuildFile('index.mjs'));
