@@ -36,4 +36,15 @@ function guardAttributes (instance) {
     }
   });
 
+  // Intercept indirect .get access of the attributes.
+  const actualGet = instance.get.bind(instance);
+  function get (key, options) {
+    if (!loaded_attrs.has(key)) {
+      throw new InstanceError(`Cannot access attribute ${ key } on ${ instance.constructor.name } omitted from attributes`);
+    }
+    return actualGet(key, options);
+  }
+  instance.get = get.bind(instance);
+
+
 }
