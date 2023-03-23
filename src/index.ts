@@ -20,9 +20,17 @@ function guardAttributes (instance) {
     return;
   }
 
+  const included_models = (instance._options.includeNames ?? []);
+
   const loaded_attrs = new Set([
     ...instance._options.attributes,
+    ...included_models, // Let associations through
   ]);
+
+  // Guard the includes
+  included_models.forEach(name => {
+    guardAttributes(instance[name]);
+  });
 
   // Block direct dot-notation access of the attributes.
   Object.keys(instance.constructor.rawAttributes).forEach(key => {

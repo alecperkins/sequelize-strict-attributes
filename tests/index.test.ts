@@ -114,6 +114,54 @@ describe("sequelizeStrictAttributes", () => {
     expect(() => result.bravo = 1).not.toThrow();
   });
 
+  test("guards against use of unselected attributes in an included model", async () => {
+    const { sequelize, Foo, Bar } = await sharedSetup();
+    sequelizeStrictAttributes(sequelize);
+    const result = await Foo.findOne({
+      include: {
+        model: Bar,
+        attributes: ["alpha"],
+        required: true,
+      },
+      attributes: ["alpha"],
+      rejectOnEmpty: true,
+    });
+
+    expect(result.alpha).toEqual("abc");
+    expect(() => result.bravo).toThrow();
+    expect(result.Bar!.alpha).toEqual("abc");
+    expect(() => result.Bar!.bravo).toThrow();
+  });
+
+  test("has no effect on included model without explicit attributes", async () => {
+    const { sequelize, Foo, Bar } = await sharedSetup();
+    sequelizeStrictAttributes(sequelize);
+    const result = await Foo.findOne({
+      include: {
+        model: Bar,
+      },
+      attributes: ["alpha"],
+      rejectOnEmpty: true,
+    });
+
+    expect(result.alpha).toEqual("abc");
+    expect(() => result.bravo).toThrow("Cannot access attribute bravo on Foo omitted from attributes");
+    expect(result.Bar!.alpha).toEqual("abc");
+    expect(result.Bar!.bravo).toEqual(4);
+  });
+
+  test("does not prevent associations from being fetched", async () => {
+    const { sequelize, Foo } = await sharedSetup();
+    sequelizeStrictAttributes(sequelize);
+    const result = await Foo.findOne({
+      rejectOnEmpty: true,
+    });
+    const bar = await result.getBar();
+
+    expect(result.alpha).toEqual("abc");
+    expect(bar.alpha).toEqual("abc");
+  });
+
 });
 
 
@@ -121,6 +169,14 @@ async function sharedSetup () {
   const sequelize = new Sequelize('sqlite::memory:');
   await sequelize.authenticate();
   class Foo extends Model {
+    id: number;
+    alpha: string;
+    bravo: number;
+    Bar?: Bar;
+    getBar: BelongsToGetAssociationMixin<Bar>;
+  }
+  class Bar extends Model {
+    id: number;
     alpha: string;
     bravo: number;
   }
@@ -130,16 +186,30 @@ async function sharedSetup () {
   }, {
     sequelize,
   });
+  Bar.init({
+    alpha: DataTypes.STRING,
+    bravo: DataTypes.INTEGER,
+  }, {
+    sequelize,
+  });
+  Foo.belongsTo(Bar);
+
   await sequelize.sync({ force: true });
 
+  const bar = await Bar.create({
+    alpha: "abc",
+    bravo: 4,
+  });
   const foo = await Foo.create({
     alpha: "abc",
     bravo: 4,
+    BarId: bar.id,
   });
 
   return {
     sequelize,
     Foo,
+    Bar,
   };
 }
 
