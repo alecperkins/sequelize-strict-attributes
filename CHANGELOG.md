@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/alecperkins/sequelize-strict-attributes/compare/v1.0.0...v1.0.1) (2023-03-24)
+
+
+### Bug Fixes
+
+* Allow .get() without key ([970eba6](https://github.com/alecperkins/sequelize-strict-attributes/commit/970eba669c620639ffba81451f936cfd6c4e6ee7))
+* Allow .toJSON() to work normally ([5225a2c](https://github.com/alecperkins/sequelize-strict-attributes/commit/5225a2c90f409de43e17ef48bea356e711aa7af3))
+
 ## 1.0.0 (2023-03-24)
 
 
