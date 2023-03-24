@@ -13,7 +13,7 @@ describe("sequelizeStrictAttributes", () => {
     
     const result = await Foo.findOne({
       where: { alpha: "abc" },
-      attributes: ["alpha"],
+      attributes: ["id", "alpha"],
       rejectOnEmpty: true,
     });
     
@@ -24,7 +24,18 @@ describe("sequelizeStrictAttributes", () => {
     expect(result.alpha).toEqual("abc");
     expect(result.get("alpha")).toEqual("abc");
     expect(() => result.bravo = 1).not.toThrow();
-    expect(() => result.set("bravo", 1)).not.toThrow();
+    await result.save();
+    expect((await Foo.findOne({
+      where: { id: result.id },
+      rejectOnEmpty: true,
+    })).bravo).toEqual(1);
+
+    expect(() => result.set("bravo", 2)).not.toThrow();
+    await result.save();
+    expect((await Foo.findOne({
+      where: { id: result.id },
+      rejectOnEmpty: true,
+    })).bravo).toEqual(2);
   });
 
   test("guards against use of omitted attributes after findAll", async () => {

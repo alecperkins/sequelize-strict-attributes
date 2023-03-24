@@ -1,4 +1,4 @@
-import { InstanceError, Model } from "sequelize";
+import { InstanceError } from "sequelize";
 import type { Sequelize } from "sequelize";
 
 /**
@@ -61,6 +61,5 @@ function guardAttributes (instance) {
     return actualGet(key, options);
   }
   instance.get = get.bind(instance);
-
 
 }
