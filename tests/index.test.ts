@@ -94,6 +94,23 @@ describe("sequelizeStrictAttributes", () => {
     expect(() => result.set("bravo", 1)).not.toThrow();
   });
 
+  test("does not interfere with .get()", async () => {
+    const { sequelize, Foo } = await sharedSetup();
+    sequelizeStrictAttributes(sequelize);
+    expect((await Foo.count())).toBe(1);
+
+    const result = await Foo.findOne({
+      attributes: ['alpha'],
+      rejectOnEmpty: true,
+    });
+
+    expect(result.get("alpha")).toEqual("abc");
+    expect(() => result.get("bravo")).toThrow("Cannot access attribute bravo on Foo omitted from attributes");
+    expect(result.get()).toEqual({
+      alpha: "abc",
+    });
+  });
+
   test("has no effect on empty results", async () => {
     const { sequelize, Foo } = await sharedSetup();
     sequelizeStrictAttributes(sequelize);
