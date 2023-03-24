@@ -54,11 +54,13 @@ function guardAttributes (instance) {
 
   // Intercept indirect .get access of the attributes.
   const actualGet = instance.get.bind(instance);
-  function get (key?: string, options?: unknown) {
+  function get (key_or_options?: string | object, options?: unknown) {
+    // Model::get has several signatures, so make sure we're only guarding the .get('key') call.
+    const key = key_or_options && typeof key_or_options === "string" ? key_or_options : null;
     if (key && !loaded_attrs.has(key)) {
       throw new InstanceError(`Cannot access attribute ${ key } on ${ instance.constructor.name } omitted from attributes`);
     }
-    return actualGet(key, options);
+    return actualGet(key_or_options, options);
   }
   instance.get = get.bind(instance);
 

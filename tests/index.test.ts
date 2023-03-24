@@ -111,6 +111,23 @@ describe("sequelizeStrictAttributes", () => {
     });
   });
 
+  test("does not interfere with .toJSON()", async () => {
+    const { sequelize, Foo } = await sharedSetup();
+    sequelizeStrictAttributes(sequelize);
+    expect((await Foo.count())).toBe(1);
+
+    const result = await Foo.findOne({
+      attributes: ['alpha'],
+      rejectOnEmpty: true,
+    });
+
+    expect(result.get("alpha")).toEqual("abc");
+    expect(() => result.get("bravo")).toThrow("Cannot access attribute bravo on Foo omitted from attributes");
+    expect(result.toJSON()).toEqual({
+      alpha: "abc",
+    });
+  });
+
   test("has no effect on empty results", async () => {
     const { sequelize, Foo } = await sharedSetup();
     sequelizeStrictAttributes(sequelize);
