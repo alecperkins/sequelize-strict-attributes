@@ -26,7 +26,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: ouzi-dev/commit-status-updater@v2
+    # - uses: ouzi-dev/commit-status-updater@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
@@ -35,7 +35,7 @@ jobs:
     - run: npm run build
     - run: npm run build-dist
     - run: npm test
-    - if: always()
-      uses: ouzi-dev/commit-status-updater@v2
-      with:
-        status: "${{ job.status }}"
+    # - if: always()
+    #   uses: ouzi-dev/commit-status-updater@v2
+    #   with:
+    #     status: "${{ job.status }}"
