@@ -61,7 +61,7 @@ When accessing the omitted attribute to determine if `tax` needs to be calculate
 
 ```javascript
 if (cart.tax === null) { // <-- Throws!
-  cart.tax = calculateTax(cart);
+  cart.tax = cart.subtotal * TAX_RATE;
 } 
 ```
 
@@ -82,7 +82,7 @@ const cart = await Cart.findOne({
   },
 });
 
-await sendCheckoutEmail({
+await sendReceiptEmail({
   name: cart.Customer.name,
   email: cart.Customer.email, // <-- Throws here!
 });
