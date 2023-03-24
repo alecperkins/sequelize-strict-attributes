@@ -38,48 +38,70 @@ sequelizeStrictAttributes(sequelize);
 
 From this point on, any `Model.findAll` or `Model.findOne` query that specifies `attributes:`—and does not use `raw: true`—will throw if you try to access an attribute not included in the select list.
 
+### Example
+
 For example, given a model that looks something like this:
 
 ```javascript
-const MyCustomer = sequelize.define('MyModel', {
-  name: DataTypes.STRING,
-  money: DataTypes.INTEGER,
+const Cart = sequelize.define("Cart", {
+  subtotal: DataTypes.STRING,
+  tax: DataTypes.INTEGER,
 });
 ```
 
 And an instance fetched like this:
 
 ```javascript
-const result = await MyCustomer.findOne({
-  attributes: ["name"],
+const cart = await Cart.findOne({
+  attributes: ["subtotal"],
 });
 ```
 
-When accessing the omitted attribute, the program will throw:
+When accessing the omitted attribute to determine if `tax` needs to be calculated, the program will throw:
 
 ```javascript
-if (!result.money) { // <-- Throws here
-  console.log("Out of money!"); // <-- because this is potentially incorrect since `money` was omitted.
-}
+if (cart.tax === null) { // <-- Throws!
+  cart.tax = calculateTax(cart);
+} 
 ```
 
 ```javascript
-if (!result.get("money")) { // <-- Also throws
-  …
-}
+if (cart.get("tax") === null) { // <-- Also throws
 ```
 
-Included models will similarly be restricted. Setting the attribute directly or using `Model::set` will still work, though shortcuts like addition assignment will throw.
+### Includes
+
+Included models will similarly be restricted if their attributes are specified on the `include`.
+
+```javascript
+const cart = await Cart.findOne({
+  attributes: [],
+  include: {
+    model: Customer,
+    attributes: ["name"],
+  },
+});
+
+await sendCheckoutEmail({
+  name: cart.Customer.name,
+  email: cart.Customer.email, // <-- Throws here!
+});
+```
+
+
+### Setting attributes
+
+Setting the attribute directly or using `Model::set` will still work. These changes can be saved as expected, though you won't be able to read them back on the same instance, even after a `.reload()`. (Though shortcuts like addition–assignment will naturally throw.)
 
 
 ## Motivation
 
-Disallowing access of attributes that were excluded from a select is a common feature of other ORMs (eg Prisma, ActiveRecord, Django) for good reason. However, the Sequelize authors [declined to support it](https://github.com/sequelize/sequelize/issues/12108) in the core library. After Sequelize’s behavior bit me pretty severely, I decided to put this together to more reliably avoid this hazard in the future.
+Disallowing access of attributes that were excluded from a select is a common feature of other ORMs for good reason (eg [Prisma](https://www.prisma.io/docs/concepts/components/prisma-client/select-fields#select-specific-fields) excludes it from the returned type, [ActiveRecord](https://guides.rubyonrails.org/active_record_querying.html#selecting-specific-fields) and [Django](https://docs.djangoproject.com/en/dev/ref/models/querysets/#values) throw errors on access). However, the Sequelize authors [declined to support it](https://github.com/sequelize/sequelize/issues/12108) in the core library. In lieu of core support, this plugin will help guard against the hazard.
 
 
 ## Author
 
-Alec Perkins, https://alecperkins.net
+[Alec Perkins](https://alecperkins.net)
 
 
 ## License
