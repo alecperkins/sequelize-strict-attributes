@@ -142,6 +142,20 @@ describe("sequelizeStrictAttributes", () => {
     expect(result).toEqual(null);
   });
 
+  test("has no effect on empty results from aggregation", async () => {
+    const { sequelize, Foo } = await sharedSetup();
+    sequelizeStrictAttributes(sequelize);
+    expect((await Foo.count())).toBe(1);
+
+    const result = await Foo.findOne({
+      where: { alpha: "nonexistent" },
+      attributes: ["alpha"],
+      raw: true,
+    });
+
+    expect(result).toEqual(null);
+  });
+
   test("has no effect after a raw findOne", async () => {
     const { sequelize, Foo } = await sharedSetup();
     sequelizeStrictAttributes(sequelize);
@@ -193,6 +207,26 @@ describe("sequelizeStrictAttributes", () => {
     expect(() => result.bravo).toThrow("Cannot access attribute bravo on Foo omitted from attributes");
     expect(result.Bar!.alpha).toEqual("abc");
     expect(result.Bar!.bravo).toEqual(4);
+  });
+
+  test("has no effect on included model with no result", async () => {
+    const { sequelize, Foo, Bar } = await sharedSetup();
+    sequelizeStrictAttributes(sequelize);
+    await Foo.create({
+      alpha: "cde",
+    });
+    const result = await Foo.findOne({
+      where: {
+        alpha: "cde",
+      },
+      include: {
+        model: Bar,
+        attributes: ["alpha"],
+      },
+      rejectOnEmpty: true,
+    });
+
+    expect(result.Bar).toEqual(null);
   });
 
   test("does not prevent associations from being fetched", async () => {

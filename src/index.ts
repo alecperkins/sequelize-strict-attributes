@@ -1,4 +1,4 @@
-import { InstanceError } from "sequelize";
+import { InstanceError, Model } from "sequelize";
 import type { Sequelize } from "sequelize";
 
 /**
@@ -16,15 +16,18 @@ export default function sequelizeStrictAttributes (sequelize: Sequelize) {
   sequelize.addHook('afterFind', (result) => {
     if (result instanceof Array) {
       result.forEach(guardAttributes);
-    } else if (result) { // Make sure it's not an empty result from a findOne
+    } else {
       guardAttributes(result);
     }
   });
 }
 
 function guardAttributes (instance) {
-  if (!instance._options || !instance._options.attributes) {
-    // Raw results aren't full instances and can't be reliably restricted.
+  if (
+    !instance // Make sure it's not an empty result from a findOne or an include
+    || !instance._options // Raw results aren't full instances and can't be reliably restricted.
+    || !instance._options.attributes
+  ) {
     return;
   }
 
