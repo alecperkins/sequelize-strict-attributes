@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/alecperkins/sequelize-strict-attributes/compare/v1.0.1...v1.0.2) (2023-03-24)
+
+
+### Bug Fixes
+
+* Avoid guarding empty include results ([4227433](https://github.com/alecperkins/sequelize-strict-attributes/commit/422743364fc95b4475d3e265bea6e93a88d38bb7))
+
 ## [1.0.1](https://github.com/alecperkins/sequelize-strict-attributes/compare/v1.0.0...v1.0.1) (2023-03-24)
 
 

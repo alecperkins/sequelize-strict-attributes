@@ -1,6 +1,6 @@
 {
   "name": "sequelize-strict-attributes",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Plugin that configures Sequelize to throw when accessing attributes omitted from a select.",
   "author": "Alec Perkins <mail@alecperkins.me>",
   "license": "MIT",
