@@ -37,10 +37,6 @@ delete package_content.scripts;
 delete package_content.devDependencies;
 delete package_content.private;
 delete package_content.engines;
-delete package_content.bugs;
-delete package_content.repository;
-delete package_content.homepage;
-delete package_content.keywords;
 
 prepareDir();
 
